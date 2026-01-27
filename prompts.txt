@@ -1,6 +1,6 @@
 Search:
 ----------------
-I would like to build a python terminal application, that allows me to search Jira issues, group then to be displayed easily. I would like to add jira tickets. I would like to edit some fields too. Everything using command args. I am using a data center version. All the custom fields names are on the jiraconsole.py file, that you can use as example. But at first, I would like only to be able to search and display things. Editing, Adding and grouping can be done later. All the mapping with custom fields and jira authentification and URLs can be stored in a .env file. Can you help me?
+I would like to build a python terminal application, that allows me to search Jira issues, group them to be displayed easily. I would like to add jira tickets. I would like to edit some fields too. Everything using command args. I am using a data center version. All the custom fields names are on the jiraconsole.py file, that you can use as example. But at first, I would like only to be able to search and display things. Editing, Adding and grouping can be done later. All the mapping with custom fields and jira authentification and URLs can be stored in a .env file. Can you help me?
 
 Are we using venv?
 
