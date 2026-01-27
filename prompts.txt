@@ -1,0 +1,41 @@
+Search:
+----------------
+I would like to build a python terminal application, that allows me to search Jira issues, group then to be displayed easily. I would like to add jira tickets. I would like to edit some fields too. Everything using command args. I am using a data center version. All the custom fields names are on the jiraconsole.py file, that you can use as example. But at first, I would like only to be able to search and display things. Editing, Adding and grouping can be done later. All the mapping with custom fields and jira authentification and URLs can be stored in a .env file. Can you help me?
+
+Are we using venv?
+
+How could we add sorting?
+
+I would like to have the epic name too on the displayed columns (controlled by an args).
+
+Group by:
+----------------
+Great stuff. Now I would like to be able to groub by the results. For example, story points and number of issues by status. story points by assignee. number of issues by epics. story points by epics and status. Is it doable? What do you propose?
+
+Pivot table:
+----------------
+So far so good. I would like now a pivot table function. For example, we could have the epic summary as rows, status as columns, and sum of story points as values. Could you propose something?
+
+It's very good. For the pivot tables, could you print "" whenever it's a 0.0 on values? I think it would be easier to read.
+
+Parameters on .env:
+----------------
+I would like to have a .env parameter, so that when I am demoing this application, I can set it to True and all the Epic Summary and Summary fields will be anonymized. Is it possible?
+
+We have this "/rest/api/2/search" and "/rest/api/2/issue/" in jira_cli.py. It would be nice to have this on .env. So if I decide to use a cloud instance, I can change it on .env. What do you think?
+
+Adding:
+----------------
+I would like to add a new command, that allows me to create a new jira ticket. It should have the following fields: project, summary, description, issue type, assignee, story points, epic link. All of them should be controlled by args. The epic link should be optional. The story points should be optional. The assignee should be optional. The description should be optional. The summary should be optional. The project should be optional. The issue type should be optional. 
+
+Editing:
+----------------
+I would like to add a new command, that allows me to edit a jira ticket. It should have the following fields: project, summary, description, issue type, assignee, story points, epic link. All of them should be controlled by args. The epic link should be optional. The story points should be optional. The assignee should be optional. The description should be optional. The summary should be optional. The project should be optional. The issue type should be optional. 
+
+I would like to be able to add and to remove a ticket to and from a sprint. It should be controlled by args on the edit mode.
+
+Displaying a ticket:
+----------------
+And now I would like to be able to display a ticket. It should have the following fields: project, summary, description, issue type, assignee, story points, epic link, epic name, fixVersion and priority. 
+The view command should display the story points field also. Can you do it, please?
+Is it possible to show a link on the terminal, at the end of the view command, so that we can click on it and open the display view of the ticket in Jira?
