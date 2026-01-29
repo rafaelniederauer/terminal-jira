@@ -12,6 +12,8 @@ Group by:
 ----------------
 Great stuff. Now I would like to be able to groub by the results. For example, story points and number of issues by status. story points by assignee. number of issues by epics. story points by epics and status. Is it doable? What do you propose?
 
+When grouping (--group-by), it would be nice to have the total of story points and the count of tickets. Can you do it?
+
 Pivot table:
 ----------------
 So far so good. I would like now a pivot table function. For example, we could have the epic summary as rows, status as columns, and sum of story points as values. Could you propose something?

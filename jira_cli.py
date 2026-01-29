@@ -543,6 +543,16 @@ def main():
                     table_row.append(str(row['Count']))
                     table_row.append(f"{row['Total_Points']:.1f}")
                     table.add_row(*table_row)
+
+                # Grand Totals
+                total_count = grouped['Count'].sum()
+                total_points = grouped['Total_Points'].sum()
+                
+                table.add_section()
+                total_row = ["Total"] + [""] * (len(valid_group_cols) - 1)
+                total_row.append(str(total_count))
+                total_row.append(f"{total_points:.1f}")
+                table.add_row(*total_row)
                 
                 console.print(table)
                 sys.exit(0)
