@@ -9,6 +9,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress
 from datetime import datetime
+import shlex
 
 # Initialize Rich Console
 console = Console()
@@ -426,7 +427,45 @@ def display_issue_detail(issue_data, client, config):
     issue_url = f"{config.jira_url}/browse/{key}"
     console.print(f"\n[bold]Open in Jira:[/bold] [link={issue_url}]{issue_url}[/link]\n")
 
+def load_cmd_aliases(filepath=".cmd"):
+    """
+    Loads command aliases from a file.
+    """
+    aliases = {}
+    if os.path.exists(filepath):
+        with open(filepath, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                if '=' in line:
+                    key, val = line.split('=', 1)
+                    aliases[key.strip()] = val.strip()
+    return aliases
+
 def main():
+    # Early check for --cmd to allow aliasing
+    if "--cmd" in sys.argv:
+        try:
+            cmd_idx = sys.argv.index("--cmd")
+            if cmd_idx + 1 < len(sys.argv):
+                alias_name = sys.argv[cmd_idx + 1]
+                aliases = load_cmd_aliases()
+                if alias_name in aliases:
+                    # Replace --cmd and the name with the alias content
+                    alias_args = shlex.split(aliases[alias_name])
+                    # Reconstruct sys.argv: program name + alias args + any other args passed
+                    sys.argv = [sys.argv[0]] + alias_args + sys.argv[:cmd_idx][1:] + sys.argv[cmd_idx+2:]
+                else:
+                    console.print(f"[red]Error: Alias '{alias_name}' not found in .cmd file.[/red]")
+                    sys.exit(1)
+            else:
+                console.print("[red]Error: --cmd requires an alias name.[/red]")
+                sys.exit(1)
+        except Exception as e:
+            console.print(f"[red]Error loading aliases: {e}[/red]")
+            sys.exit(1)
+
     parser = argparse.ArgumentParser(description="Jira CLI - Terminal Client for Jira")
     subparsers = parser.add_subparsers(dest="command", help="Command to execute")
 

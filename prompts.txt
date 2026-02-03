@@ -41,3 +41,7 @@ Displaying a ticket:
 And now I would like to be able to display a ticket. It should have the following fields: project, summary, description, issue type, assignee, story points, epic link, epic name, fixVersion and priority. 
 The view command should display the story points field also. Can you do it, please?
 Is it possible to show a link on the terminal, at the end of the view command, so that we can click on it and open the display view of the ticket in Jira?
+
+Commands:
+-----------------
+I would like to have an external file, for example .cmd, where I could write a name for a command and the terminal command itself. For example: in .cmd I could have "command1 = --view XYZ-1000" and when writing on the terminal "python jira_cli.py --cmd command1" it would actually run "python jira_cli.py --view XYZ-1000". And I could have several lines with commands on the .cmd. Could you propose a .cmd.example and develop the logic behind it?

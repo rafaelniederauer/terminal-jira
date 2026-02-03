@@ -11,6 +11,7 @@ A powerful, aesthetic, and flexible terminal application for interacting with Ji
 - **Sprint Management**: Add or remove issues from sprints by name.
 - **Aesthetic**: Rich-formatted output with panels, colors, and progress bars.
 - **Anonymization**: Demo-ready mode to redact sensitive summaries.
+- **Command Aliases**: Reusable command shortcuts defined in a `.cmd` file.
 - **Configurable**: Works with Jira Data Center and Jira Cloud via environment variables.
 
 ---
@@ -93,6 +94,16 @@ python jira_cli.py edit PROJ-123 --sprint "Sprint 5"
 python jira_cli.py edit PROJ-123 --clear-sprint
 ```
 
+### Command Aliases (`--cmd`)
+You can define reusable command shortcuts in a `.cmd` file located in the root directory.
+
+```bash
+# Run a predefined alias
+python jira_cli.py --cmd my-sprint-report
+```
+
+See [4. Command Aliases](#4-command-aliases) for setup details.
+
 ---
 
 ## 3. Advanced Configuration
@@ -109,3 +120,31 @@ Redact ticket summaries and descriptions for public presentations:
 ```bash
 JIRA_ANONYMIZE=True python jira_cli.py search --jql "..."
 ```
+
+---
+
+## 4. Command Aliases
+
+Define aliases in a file named `.cmd` in the root of the project.
+
+**Format:**
+```ini
+alias_name = full arguments for jira_cli.py
+```
+
+**Example `.cmd` file:**
+```ini
+# Status summary for a specific sprint
+sprint-report = search --jql "sprint = 'Sprint 2'" --group-by status --epic-name
+
+# Pivot table for project workload
+work-pivot = search --jql "project = PROJ" --pivot-rows "Epic Link" --pivot-cols "Status" --pivot-values "Points"
+```
+
+**Usage:**
+```bash
+python jira_cli.py --cmd sprint-report
+```
+
+> [!TIP]
+> You can create a `.cmd` file by copying the provided example: `cp .cmd.example .cmd`
