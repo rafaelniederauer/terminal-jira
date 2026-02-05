@@ -1,0 +1,15 @@
+# Jira CLI Command Aliases Example
+# Format: alias_name = command_args
+# Use '#' for comments
+
+# Quick view of a specific ticket
+view-ticket = view XYZ-1000
+
+# Search for issues in a specific project
+search-proj = search --jql "project = PROJ" --sort status
+
+# Summary report for recent sprint
+sprint-report = search --jql "sprint = 'Sprint 2'" --group-by status --epic-name
+
+# Pivot table of current work
+work-pivot = search --jql "assignee = currentUser() AND status != Done" --pivot-rows "Epic Link" --pivot-cols "Status" --pivot-values "Points"
