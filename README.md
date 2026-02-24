@@ -126,7 +126,7 @@ JIRA_ANONYMIZE=True python terminal-jira.py search --jql "..."
 Control the display order of statuses in Group By and Pivot Tables:
 ```bash
 # In your .env file
-STATUS_ORDER="Open","To Do","Ready","In Progress","To Review","Testing","Done","Closed"
+STATUS_ORDER=Open, To Do, Ready, In Progress, To Review, Testing, Done, Closed
 ```
 Statuses not in the list will appear at the end.
 
