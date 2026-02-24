@@ -11,6 +11,7 @@ A powerful, aesthetic, and flexible terminal application for interacting with Ji
 - **Sprint Management**: Add or remove issues from sprints by name.
 - **Aesthetic**: Rich-formatted output with panels, colors, and progress bars.
 - **Anonymization**: Demo-ready mode to redact sensitive summaries.
+- **Status Ordering**: Explicitly control the order of statuses in reports via `.env`.
 - **Command Aliases**: Reusable command shortcuts defined in a `.cmd` file.
 - **Configurable**: Works with Jira Data Center and Jira Cloud via environment variables.
 
@@ -120,6 +121,14 @@ Redact ticket summaries and descriptions for public presentations:
 ```bash
 JIRA_ANONYMIZE=True python terminal-jira.py search --jql "..."
 ```
+
+### Custom Status Ordering
+Control the display order of statuses in Group By and Pivot Tables:
+```bash
+# In your .env file
+STATUS_ORDER="Open","To Do","Ready","In Progress","To Review","Testing","Done","Closed"
+```
+Statuses not in the list will appear at the end.
 
 ---
 

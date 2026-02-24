@@ -41,6 +41,16 @@ class ConfigLoader:
         # Anonymization
         self.anonymize = os.getenv("JIRA_ANONYMIZE", "False").lower() == "true"
 
+        # Status Ordering
+        env_status_order = os.getenv("STATUS_ORDER")
+        # Split by comma and strip quotes/spaces from each part
+        if env_status_order:
+            # Handle both formats: STATUS_ORDER=A,B,C or STATUS_ORDER="A","B","C"
+            raw_parts = env_status_order.split(",")
+            self.status_order = [s.strip().strip('"').strip("'") for s in raw_parts if s.strip()]
+        else:
+            self.status_order = []
+
     def validate(self):
         if not self.jira_url or not self.username or not self.password:
             console.print("[red]Error: Missing configuration. Please check your .env file.[/red]")
@@ -260,7 +270,7 @@ class IssueParser:
             # Basic Fields
             key = issue.get("key")
             summary = fields.get("summary")
-            status = fields.get("status", {}).get("name")
+            status = fields.get("status", {}).get("name", "").strip()
             
             if self.config.anonymize:
                 summary = f"Redacted Summary for {key}"
@@ -569,7 +579,29 @@ def main():
                     Count=('Key', 'count'),
                     Total_Points=('Points', 'sum')
                 ).reset_index()
-                grouped = grouped.sort_values(by='Total_Points', ascending=False)
+
+                # Apply custom status ordering if grouping by Status
+                status_col = next((c for c in valid_group_cols if c.lower() == "status"), None)
+                if config.status_order and status_col:
+                    unique_statuses = grouped[status_col].unique()
+                    
+                    # Create case-insensitive mapping: cleaned_lowered_status -> original_status
+                    data_map = {s.strip().lower(): s for s in unique_statuses}
+                    full_order = []
+                    
+                    # Add matched statuses in requested order
+                    for s_req in config.status_order:
+                        s_req_clean = s_req.strip().lower()
+                        if s_req_clean in data_map:
+                            full_order.append(data_map.pop(s_req_clean))
+                    
+                    # Add any remaining statuses found in data
+                    full_order.extend(data_map.values())
+                    
+                    grouped[status_col] = pd.Categorical(grouped[status_col], categories=full_order, ordered=True)
+                    grouped = grouped.sort_values(by=valid_group_cols)
+                else:
+                    grouped = grouped.sort_values(by='Total_Points', ascending=False)
                 
                 table = Table(title=f"Grouped by {', '.join(valid_group_cols)}")
                 for col in valid_group_cols:
@@ -621,6 +653,26 @@ def main():
             
             try:
                 pivot = pd.pivot_table(df, index=rows, columns=cols, values=real_val, aggfunc=agg, fill_value=0, margins=True, margins_name='Total')
+
+                # Apply custom status ordering to rows/cols
+                def reorder_pivot_axis(pivot_obj, axis_name, is_rows=True):
+                    if config.status_order and axis_name.lower() == "status":
+                        axis = pivot_obj.index if is_rows else pivot_obj.columns
+                        data_values = [s for s in axis if s != 'Total']
+                        data_map = {s.lower(): s for s in data_values}
+                        
+                        ordered = []
+                        for s in config.status_order:
+                            if s.lower() in data_map:
+                                ordered.append(data_map.pop(s.lower()))
+                        ordered.extend(data_map.values())
+                        if 'Total' in axis: ordered.append('Total')
+                        
+                        return pivot_obj.reindex(ordered) if is_rows else pivot_obj[ordered]
+                    return pivot_obj
+
+                pivot = reorder_pivot_axis(pivot, rows, is_rows=True)
+                pivot = reorder_pivot_axis(pivot, cols, is_rows=False)
                 title = f"Pivot: {rows} (Rows) x {cols} (Cols) - {agg.title()} of {real_val}"
                 table = Table(title=title)
                 
