@@ -52,46 +52,46 @@ Available commands: `search`, `view`, `create`, `edit`.
 ### Search issues
 ```bash
 # Basic search
-python jira_cli.py search --jql "project = PROJ"
+python terminal-jira.py search --jql "project = PROJ"
 
 # Search with sorting
-python jira_cli.py search --jql "project = PROJ" --sort status
+python terminal-jira.py search --jql "project = PROJ" --sort status
 
 # Search with Epic summaries
-python jira_cli.py search --jql "project = PROJ" --epic-name
+python terminal-jira.py search --jql "project = PROJ" --epic-name
 ```
 
 ### Grouping & Aggregation
 ```bash
 # Group by Status (Count + Total Points)
-python jira_cli.py search --jql "project = PROJ" --group-by Status
+python terminal-jira.py search --jql "project = PROJ" --group-by Status
 
 # Group by Epic and Status
-python jira_cli.py search --jql "project = PROJ" --epic-name --group-by "Epic Summary,Status"
+python terminal-jira.py search --jql "project = PROJ" --epic-name --group-by "Epic Summary,Status"
 ```
 
 ### Pivot Tables
 Generate a matrix of Story Points:
 ```bash
-python jira_cli.py search --jql "project = PROJ" --epic-name --pivot-rows "Epic Summary" --pivot-cols "Status" --pivot-values "Points"
+python terminal-jira.py search --jql "project = PROJ" --epic-name --pivot-rows "Epic Summary" --pivot-cols "Status" --pivot-values "Points"
 ```
 
 ### Detailed View
 ```bash
-python jira_cli.py view PROJ-123
+python terminal-jira.py view PROJ-123
 ```
 
 ### Create & Edit
 ```bash
 # Create
-python jira_cli.py create --project PROJ --summary "Task Name" --type Task
+python terminal-jira.py create --project PROJ --summary "Task Name" --type Task
 
 # Edit
-python jira_cli.py edit PROJ-123 --points 5 --status "In Progress"
+python terminal-jira.py edit PROJ-123 --points 5 --status "In Progress"
 
 # Sprint Management
-python jira_cli.py edit PROJ-123 --sprint "Sprint 5"
-python jira_cli.py edit PROJ-123 --clear-sprint
+python terminal-jira.py edit PROJ-123 --sprint "Sprint 5"
+python terminal-jira.py edit PROJ-123 --clear-sprint
 ```
 
 ### Command Aliases (`--cmd`)
@@ -99,7 +99,7 @@ You can define reusable command shortcuts in a `.cmd` file located in the root d
 
 ```bash
 # Run a predefined alias
-python jira_cli.py --cmd my-sprint-report
+python terminal-jira.py --cmd my-sprint-report
 ```
 
 See [4. Command Aliases](#4-command-aliases) for setup details.
@@ -118,7 +118,7 @@ JIRA_API_ISSUE_ENDPOINT=/rest/api/3/issue
 ### Demo Mode
 Redact ticket summaries and descriptions for public presentations:
 ```bash
-JIRA_ANONYMIZE=True python jira_cli.py search --jql "..."
+JIRA_ANONYMIZE=True python terminal-jira.py search --jql "..."
 ```
 
 ---
@@ -129,7 +129,7 @@ Define aliases in a file named `.cmd` in the root of the project.
 
 **Format:**
 ```ini
-alias_name = full arguments for jira_cli.py
+alias_name = full arguments for terminal-jira.py
 ```
 
 **Example `.cmd` file:**
@@ -143,7 +143,7 @@ work-pivot = search --jql "project = PROJ" --pivot-rows "Epic Link" --pivot-cols
 
 **Usage:**
 ```bash
-python jira_cli.py --cmd sprint-report
+python terminal-jira.py --cmd sprint-report
 ```
 
 > [!TIP]

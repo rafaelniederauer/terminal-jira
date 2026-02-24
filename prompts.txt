@@ -24,7 +24,7 @@ Parameters on .env:
 ----------------
 I would like to have a .env parameter, so that when I am demoing this application, I can set it to True and all the Epic Summary and Summary fields will be anonymized. Is it possible?
 
-We have this "/rest/api/2/search" and "/rest/api/2/issue/" in jira_cli.py. It would be nice to have this on .env. So if I decide to use a cloud instance, I can change it on .env. What do you think?
+We have this "/rest/api/2/search" and "/rest/api/2/issue/" in terminal-jira.py. It would be nice to have this on .env. So if I decide to use a cloud instance, I can change it on .env. What do you think?
 
 Adding:
 ----------------
@@ -44,4 +44,4 @@ Is it possible to show a link on the terminal, at the end of the view command, s
 
 Commands:
 -----------------
-I would like to have an external file, for example .cmd, where I could write a name for a command and the terminal command itself. For example: in .cmd I could have "command1 = --view XYZ-1000" and when writing on the terminal "python jira_cli.py --cmd command1" it would actually run "python jira_cli.py --view XYZ-1000". And I could have several lines with commands on the .cmd. Could you propose a .cmd.example and develop the logic behind it?
+I would like to have an external file, for example .cmd, where I could write a name for a command and the terminal command itself. For example: in .cmd I could have "command1 = --view XYZ-1000" and when writing on the terminal "python terminal-jira.py --cmd command1" it would actually run "python terminal-jira.py --view XYZ-1000". And I could have several lines with commands on the .cmd. Could you propose a .cmd.example and develop the logic behind it?
