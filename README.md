@@ -2,6 +2,8 @@
 
 A powerful, aesthetic, and flexible terminal application for interacting with Jira. Built with Python, Rich, and Pandas.
 
+![Terminal Jira Screenshot](screenshot.png)
+
 ## Features
 
 - **Search**: Flexible JQL searching with formatted table output.
