@@ -261,6 +261,26 @@ class IssueParser:
     """
     def __init__(self, config):
         self.config = config
+        self.mappings = {
+            "Summary": {},
+            "Assignee": {},
+            "Epic Link": {},
+            "Epic Summary": {},
+            "Key": {}
+        }
+
+    def anonymize_value(self, category, value):
+        if not value:
+            return ""
+        if value not in self.mappings[category]:
+            prefix = "REDACTED"
+            if category == "Summary":
+                prefix = "Redacted Summary"
+            elif category == "Epic Summary":
+                prefix = "Redacted Epic"
+            
+            self.mappings[category][value] = f"{prefix} {len(self.mappings[category]) + 1}"
+        return self.mappings[category][value]
 
     def parse(self, issues):
         parsed_issues = []
@@ -271,15 +291,19 @@ class IssueParser:
             key = issue.get("key")
             summary = fields.get("summary")
             status = fields.get("status", {}).get("name", "").strip()
+            assignee = fields.get("assignee", {}).get("displayName") if fields.get("assignee") else "Unassigned"
+            epic_link = fields.get(self.config.field_epic_link)
             
             if self.config.anonymize:
-                summary = f"Redacted Summary for {key}"
-            assignee = fields.get("assignee", {}).get("displayName") if fields.get("assignee") else "Unassigned"
+                key = self.anonymize_value("Key", key)
+                summary = self.anonymize_value("Summary", summary)
+                assignee = self.anonymize_value("Assignee", assignee)
+                epic_link = self.anonymize_value("Epic Link", epic_link)
+
             priority = fields.get("priority", {}).get("name") if fields.get("priority") else "None"
             issue_type = fields.get("issuetype", {}).get("name")
             
             # Custom Fields
-            epic_link = fields.get(self.config.field_epic_link)
             story_points = fields.get(self.config.field_story_points)
             
             # Sprint parsing
@@ -312,7 +336,8 @@ class IssueParser:
                 "Assignee": assignee,
                 "Sprint": sprint_name,
                 "Points": str(story_points) if story_points is not None else "",
-                "Epic Link": str(epic_link) if epic_link else ""
+                "Epic Link": str(epic_link) if epic_link else "",
+                "_raw_epic_link": str(fields.get(self.config.field_epic_link)) if fields.get(self.config.field_epic_link) else ""
             })
         return parsed_issues
 
@@ -355,7 +380,7 @@ def display_issues(issues):
 
     console.print(table)
 
-def display_issue_detail(issue_data, client, config):
+def display_issue_detail(issue_data, client, config, parser=None):
     """
     Renders detailed view of a single issue.
     """
@@ -378,8 +403,10 @@ def display_issue_detail(issue_data, client, config):
         return val if isinstance(val, (str, int, float)) else default
 
     summary = fields.get("summary", "")
-    if config.anonymize:
-        summary = f"Redacted Summary for {key}"
+    if config.anonymize and parser:
+        summary = parser.anonymize_value("Summary", summary)
+    elif config.anonymize:
+        summary = "Redacted Summary"
 
     description = fields.get("description")
     if config.anonymize and description:
@@ -390,13 +417,26 @@ def display_issue_detail(issue_data, client, config):
     epic_name = ""
     if epic_link:
         raw_name = client.get_epic_summary(epic_link)
-        epic_name = f"Redacted Epic for {epic_link}" if config.anonymize else raw_name
+        if config.anonymize and parser:
+             epic_name = parser.anonymize_value("Epic Summary", raw_name)
+        else:
+             epic_name = "Redacted Epic" if config.anonymize else raw_name
+
+    if config.anonymize and parser:
+        epic_link = parser.anonymize_value("Epic Link", epic_link)
+    elif config.anonymize:
+        epic_link = "REDACTED"
 
     # Fix Versions
     fix_versions = ", ".join([v.get("name") for v in fields.get("fixVersions", [])])
 
     # Assignee
-    assignee = fields.get("assignee", {}).get("displayName") if fields.get("assignee") else "Unassigned"
+    if config.anonymize and parser:
+        assignee = parser.anonymize_value("Assignee", fields.get("assignee", {}).get("displayName") if fields.get("assignee") else "Unassigned")
+    elif config.anonymize:
+        assignee = "REDACTED"
+    else:
+        assignee = fields.get("assignee", {}).get("displayName") if fields.get("assignee") else "Unassigned"
 
     # Status & Priority
     status = fields.get("status", {}).get("name")
@@ -422,9 +462,10 @@ def display_issue_detail(issue_data, client, config):
     grid.add_row("Epic Link:", str(epic_link))
     grid.add_row("Epic Name:", f"[blue]{epic_name}[/blue]")
 
+    display_key = parser.anonymize_value("Key", key) if config.anonymize and parser else ("REDACTED" if config.anonymize else key)
     console.print(Panel(
         grid,
-        title=f"[bold]{key}: {summary}[/bold]",
+        title=f"[bold]{display_key}: {summary}[/bold]",
         subtitle=f"Project: {fields.get('project', {}).get('name')}"
     ))
 
@@ -434,8 +475,9 @@ def display_issue_detail(issue_data, client, config):
         console.print(Panel("[italic]No description provided.[/italic]", title="Description"))
 
     # Issue Link
-    issue_url = f"{config.jira_url}/browse/{key}"
-    console.print(f"\n[bold]Open in Jira:[/bold] [link={issue_url}]{issue_url}[/link]\n")
+    if not config.anonymize:
+        issue_url = f"{config.jira_url}/browse/{key}"
+        console.print(f"\n[bold]Open in Jira:[/bold] [link={issue_url}]{issue_url}[/link]\n")
 
 def load_cmd_aliases(filepath=".cmd"):
     """
@@ -550,11 +592,11 @@ def main():
             with Progress() as progress:
                 task = progress.add_task("[cyan]Fetching Epic details...", total=len(parsed_issues))
                 for issue in parsed_issues:
-                    epic_link = issue.get("Epic Link")
-                    if epic_link:
-                        raw_summary = client.get_epic_summary(epic_link)
+                    raw_epic_link = issue.get("_raw_epic_link")
+                    if raw_epic_link:
+                        raw_summary = client.get_epic_summary(raw_epic_link)
                         if config.anonymize:
-                            issue["Epic Summary"] = f"Redacted Epic for {epic_link}"
+                            issue["Epic Summary"] = issue_parser.anonymize_value("Epic Summary", raw_summary)
                         else:
                             issue["Epic Summary"] = raw_summary
                     else:
@@ -761,7 +803,7 @@ def main():
     elif args.command == "view":
         issue = client.get_issue(args.key)
         if issue:
-            display_issue_detail(issue, client, config)
+            display_issue_detail(issue, client, config, parser=issue_parser)
 
 if __name__ == "__main__":
     try:
